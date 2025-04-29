@@ -45,7 +45,7 @@ function App() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto border rounded-lg shadow-sm my-8">
+    <div className="max-w-3xl mx-auto border rounded-lg shadow-sm mt-4 h-99vh">
       {/* Header */}
       <Header />
 
