@@ -1,0 +1,1 @@
+# Stub for Placeholder Vector DB

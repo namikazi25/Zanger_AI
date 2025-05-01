@@ -5,11 +5,11 @@
 ## To-Do Checklist
 
 - [x] Repository Cleanup: Remove obsolete agent entrypoints; ensure `backend/app/agents/my_agent.py` is the sole agent entry
-- [ ] Directory Structure:
-  - [ ] `backend/app/agents/`: `planner.py`, `executor.py`, `evaluator.py`
-  - [ ] `backend/app/models/`: `router.py`, `gemini.py`, `gpt4o.py`
-  - [ ] `backend/app/tools/`: `search.py`
-  - [ ] `backend/app/storage/`: `session_store.py`, `placeholder_vector_db.py`
+- [x] Directory Structure:
+  - [x] `backend/app/agents/`: `planner.py`, `executor.py`, `evaluator.py`
+  - [x] `backend/app/models/`: `router.py`, `gemini.py`, `gpt4o.py`
+  - [x] `backend/app/tools/`: `search.py`
+  - [x] `backend/app/storage/`: `session_store.py`, `placeholder_vector_db.py`
 - [ ] Environment & Configs:
   - [ ] Add required keys to `.env`
 - [ ] Dependencies: Add to `requirements.txt`
