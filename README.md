@@ -1,102 +1,107 @@
 # ZangerAI
 
-ZangerAI is a conversational AI application with a FastAPI backend. The project is structured with separate backend and frontend components.
+ZangerAI is a proprietary conversational AI application built on a FastAPI backend, designed for internal use. The project is structured with separate backend and frontend components.
 
 ## Project Structure
 
 ```
 ZangerAI/
-├── README.md
-├── backend/
+├── README.md          # This overview file
+├── backend/           # FastAPI service
 │   ├── requirements.txt
 │   ├── app/
 │   │   ├── main.py
 │   │   └── routes/
 │   │       └── chat.py
-│   └── .env
-└── frontend/
+│   └── .env           # Internal environment configuration
+└── frontend/          # React/TailwindUI client
 ```
 
 ## Backend
 
-The backend is a FastAPI application that provides a chat endpoint for processing messages through an AI agent.
+The backend is a FastAPI application exposing a `/chat` endpoint for session-based AI conversations.
 
 ### Features
 
-- Langchain endpoint for chat functionality
-- Session management for conversations
-- FastAPI for high-performance API handling
+- LangChain-driven agent for chat
+- Session management per conversation
+- FastAPI + Uvicorn for high-performance serving
 
 ### Dependencies
 
-The backend requires Python 3.8+ and includes the following key dependencies:
-- FastAPI - High-performance web framework
-- Uvicorn - ASGI server for FastAPI
-- LangChain - Framework for working with language models
-- OpenAI - API client for OpenAI's models
-- Pydantic - Data validation library
+- Python 3.8+
+- FastAPI
+- Uvicorn
+- LangChain
+- OpenAI Python SDK
+- Pydantic
 
 ### Prerequisites
 
-Before running the backend, ensure you have:
-- Python 3.8 or higher installed
-- pip package manager
-- Virtual environment setup (recommended)
+- Access to the internal Git repository
+- Environment variables configured in `backend/.env`
 
 ### Setup Instructions
 
-1. Clone the repository
-   ```
-   git clone https://github.com/yourusername/ZangerAI.git
+1. **Obtain access**: Request repository permissions from your engineering lead.
+2. **Clone the internal repo**:
+   ```bash
+   git clone <internal-git-url>
    cd ZangerAI
    ```
-
-2. Create and activate a virtual environment (optional but recommended)
-   ```
-   # Windows
-   python -m venv backend/venv
-   backend/venv/Scripts/activate
-
-   # macOS/Linux
+3. **Create and activate** a Python virtual environment:
+   ```bash
    python3 -m venv backend/venv
    source backend/venv/bin/activate
    ```
-
-3. Install required dependencies
-   ```
+4. **Install dependencies**:
+   ```bash
    cd backend
    pip install -r requirements.txt
    ```
-
-4. Environment Configuration
-
-   Create or update the `.env` file in the backend directory with necessary API keys and configuration:
+5. **Configure environment**: Populate `backend/.env` with your OpenAI key and any other secrets.
+   ```env
+   OPENAI_API_KEY=your_key_here
    ```
-   OPENAI_API_KEY=your_openai_api_key
-   ```
-
-5. Run the backend server
-   ```
+6. **Run the server**:
+   ```bash
    cd backend
    uvicorn app.main:app --reload
    ```
-
-   The server will start at `http://127.0.0.1:8000`
+   The API will be available at `http://127.0.0.1:8000`.
 
 ### API Endpoints
 
 - **POST /chat**
-  - Accepts a JSON body with `message` and `session_id` fields
-  - Returns AI-generated responses
+  - Request body: `{ "message": "<text>", "session_id": "<id>" }`
+  - Response: `{ "response": "<AI reply>" }`
 
-### Development Notes
+## Frontend
 
-- The agent implementation needs to be completed in `app/agents/my_agent.py`
-- Environment variables should be properly configured in the `.env` file for API keys
+The frontend is implemented in React + TypeScript with Vite and TailwindCSS. It connects to the backend `/chat` API to drive the conversational UI.
+
+### Getting Started
+
+1. **Install dependencies**:
+   ```bash
+   cd frontend
+   npm install
+   ```
+2. **Start the development server**:
+   ```bash
+   npm run dev
+   ```
+3. **Open** `http://localhost:5173` in your browser.
+
+## Development Notes
+
+- Agent logic is implemented in `backend/app/agents/my_agent.py` — this is the primary customization point.
+- Ensure all environment variables and secret management follow internal security guidelines.
 
 ## Future Work
 
-- Complete the agent implementation
-- Add authentication and user management
-- Develop the frontend interface
-- Improve error handling and response validation
+- Complete agent orchestration and business-logic integration
+- Add authentication, user roles, and audit logging
+- Enhance error handling, validations, and observability
+- Extend frontend UX with advanced controls and state persistence
+
