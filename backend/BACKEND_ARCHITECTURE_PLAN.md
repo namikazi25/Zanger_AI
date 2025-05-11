@@ -10,20 +10,20 @@
   - [x] `backend/app/models/`: `router.py`, `gemini.py`, `gpt4o.py`
   - [x] `backend/app/tools/`: `search.py`
   - [x] `backend/app/storage/`: `session_store.py`, `placeholder_vector_db.py`
-- [ ] Environment & Configs:
-  - [ ] Add required keys to `.env`
-- [ ] Dependencies: Add to `requirements.txt`
-  - [ ] `langchain`
-  - [ ] `brave-search` (or equivalent)
-  - [ ] `python-mammoth`
-  - [ ] `pillow`
-  - [ ] `pgsql`
-- [ ] Model-Routing Layer:
-  - [ ] Implement `router.py` with policy logic
-  - [ ] Implement `gemini.py` and `gpt4o.py` wrappers
+- [x] Environment & Configs:
+  - [x] Add required keys to `.env`
+- [x] Dependencies: Add to `requirements.txt`
+  - [x] `langchain`
+  - [x] `brave-search` (or equivalent)
+  - [x] `python-mammoth`
+  - [x] `pillow`
+  - [x] `pgsql`
+- [x] Model-Routing Layer:
+  - [x] Implement `router.py` with policy logic
+  - [x] Implement `gemini.py` and `gpt4o.py` wrappers
 - [ ] Tool-Wrappers:
-  - [ ] Implement `BraveSearchTool` in `tools/search.py`
-  - [ ] Implement stubs in `storage/placeholder_vector_db.py`
+  - [x] Implement `BraveSearchTool` in `tools/search.py`
+  - [x] Implement stubs in `storage/placeholder_vector_db.py`
 - [ ] Agent Architecture:
   - [ ] Implement Planner (`agents/planner.py`)
   - [ ] Implement Executor (`agents/executor.py`)
