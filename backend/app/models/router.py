@@ -4,12 +4,6 @@ import os
 from .gemini import GeminiFlash, BaseModelWrapper
 from .gpt4o import GPT4O
 
-# In a real application, API keys would be loaded securely, e.g., from environment variables or a config service
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-DEFAULT_MODEL_ROUTING_POLICY = os.getenv("DEFAULT_MODEL_ROUTING_POLICY", "balanced")
-
 # Placeholder for session_state typing if you have a specific class
 # from ..storage.session_store import SessionData # Example import
 SessionStateType = Any # Replace with actual SessionData type if available
@@ -33,6 +27,9 @@ def get_model(session_state: Optional[SessionStateType] = None, policy: Optional
     Raises:
         ValueError: If an unsupported policy is provided or if required API keys are missing.
     """
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    DEFAULT_MODEL_ROUTING_POLICY = os.getenv("DEFAULT_MODEL_ROUTING_POLICY", "balanced")
     current_policy = policy or DEFAULT_MODEL_ROUTING_POLICY
 
     # print(f"Routing with policy: {current_policy}") # Optional: for debugging
