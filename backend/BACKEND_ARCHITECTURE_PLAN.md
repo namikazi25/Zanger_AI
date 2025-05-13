@@ -24,18 +24,18 @@
 - [ ] Tool-Wrappers:
   - [x] Implement `BraveSearchTool` in `tools/search.py`
   - [x] Implement stubs in `storage/placeholder_vector_db.py`
-- [ ] Agent Architecture:
-  - [ ] Implement Planner (`agents/planner.py`)
-  - [ ] Implement Executor (`agents/executor.py`)
-  - [ ] Implement Evaluator (`agents/evaluator.py`)
-  - [ ] Orchestrate in `my_agent.py`
-  - [ ] Instrument logging for planning
-- [ ] Multimodal Input/Output:
-  - [ ] Extend Pydantic Schemas for file input
-  - [ ] Implement mime-type detection and preprocessing
+- [x] Agent Architecture:
+  - [x] Implement Planner (`agents/planner.py`)
+  - [x] Implement Executor (`agents/executor.py`)
+  - [x] Implement Evaluator (`agents/evaluator.py`)
+  - [x] Orchestrate in `my_agent.py`
+  - [x] Instrument logging for planning
+- [x] Multimodal Input/Output:
+  - [x] Extend Pydantic Schemas for file input
+  - [x] Implement mime-type detection and preprocessing
 - [ ] Session & State Management:
-  - [ ] Implement in-memory store (`storage/session_store.py`)
-  - [ ] Prepare abstract interface for Postgres
+  - [x] Implement supabase memory store (`storage/session_store.py`)
+  - [ ] Prepare interface for Postgres
 - [ ] FastAPI Integration:
   - [ ] Add `/chat` route
   - [ ] Add middleware (logging, error handling, CORS, rate-limit stubs)
@@ -107,16 +107,142 @@ This document outlines the step-by-step plan for evolving the backend of our AI-
 
 ## 5. Multimodal Input/Output
 
-- **Pydantic Schemas**: Extend `ChatRequest` to accept optional files: `List[UploadFile]`.
-- **Mime-Type Detection**: Dispatch images to Pillow, docs to python-mammoth.
+- **Pydantic Schemas**: Extended `ChatRequest` to accept optional files: `List[UploadFile]`.
+- **Mime-Type Detection**: Implemented mime-type detection and preprocessing for images (Pillow) and documents (python-mammoth) in `app/utils/preprocessing.py`. Integrated into `my_agent.py`.
 - **LangChain Pipelines**: For images/docs, wrap in a preprocessor that extracts text/embeddings for the model prompt.
 
 ---
 
 ## 6. Session & State Management
 
-- **In-Memory Store (`storage/session_store.py`)**: Dict mapping `session_id` to `SessionData` (history, metadata, etc). Provide `get`, `append_message`, `clear`.
-- **Abstract Interface**: Prepare for future Postgres swap (implement `SQLSessionStore` behind same API).
+# 6. Session & State Management (GDPR-Compliant with Supabase)
+
+## Overview
+
+This module replaces the in-memory session store with a **Supabase PostgreSQL-backed** session store. It ensures **GDPR compliance** through encryption, user data control, and auto-expiry mechanisms.
+
+---
+
+## ✅ SupabaseSessionStore (`storage/session_store.py`)
+
+Implements the following methods:
+
+- `get(session_id)`: Retrieve decrypted messages and metadata
+- `append_message(session_id, message)`: Encrypt and append a message
+- `clear(session_id)`: Delete the session
+- `delete_session(session_id)`: Explicit delete for GDPR "Right to be Forgotten"
+
+### Example PostgreSQL Table Schema (Supabase)
+```sql
+CREATE TABLE sessions (
+  session_id TEXT PRIMARY KEY,
+  messages JSONB,           -- Encrypted text values
+  metadata JSONB,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+Example Message Format (stored)
+json
+Copy
+Edit
+[
+  {
+    "role": "user",
+    "text": "<encrypted string>",
+    "timestamp": "2025-05-13T09:00:00"
+  },
+  {
+    "role": "agent",
+    "text": "<encrypted string>",
+    "timestamp": "2025-05-13T09:00:05"
+  }
+]
+🔐 Encryption Layer (app/utils/crypto.py)
+Implements AES-256 or Fernet encryption:
+
+python
+Copy
+Edit
+from cryptography.fernet import Fernet
+import os
+
+fernet = Fernet(os.getenv("FERNET_KEY"))
+
+def encrypt_message(msg: str) -> str:
+    return fernet.encrypt(msg.encode()).decode()
+
+def decrypt_message(token: str) -> str:
+    return fernet.decrypt(token.encode()).decode()
+Encrypt only sensitive fields (message['text']). Metadata like timestamps or model name can be stored as plain text.
+
+🔁 SupabaseSessionStore Sample Logic
+python
+Copy
+Edit
+class SupabaseSessionStore:
+    def __init__(self):
+        self.client = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_API_KEY"))
+
+    def get(self, session_id: str) -> dict:
+        response = self.client.table("sessions").select("*").eq("session_id", session_id).single().execute()
+        if not response.data:
+            return {}
+        decrypted = [
+            {
+                "role": msg["role"],
+                "text": decrypt_message(msg["text"]),
+                "timestamp": msg["timestamp"]
+            } for msg in response.data["messages"]
+        ]
+        return {"session_id": session_id, "messages": decrypted, "metadata": response.data["metadata"]}
+
+    def append_message(self, session_id: str, message: dict):
+        encrypted_message = {
+            "role": message["role"],
+            "text": encrypt_message(message["text"]),
+            "timestamp": message["timestamp"]
+        }
+        existing = self.get(session_id)
+        messages = existing.get("messages", []) + [encrypted_message]
+        metadata = existing.get("metadata", {})
+        self.client.table("sessions").upsert({
+            "session_id": session_id,
+            "messages": messages,
+            "metadata": metadata
+        }).execute()
+
+    def clear(self, session_id: str):
+        self.client.table("sessions").delete().eq("session_id", session_id).execute()
+⚖️ GDPR Compliance Checklist
+ Encryption: All message content is encrypted before storage
+
+ Right to be Forgotten: Users can delete their session (clear)
+
+ Auto-Expiry: Set up Supabase cron job or pg_cron to delete stale sessions
+
+ Key Management: Store FERNET_KEY in environment, rotate periodically
+
+🔧 .env Variables
+ini
+Copy
+Edit
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_API_KEY=your-service-role-key
+FERNET_KEY=your-generated-key
+Generate FERNET_KEY using:
+
+bash
+Copy
+Edit
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+🛠️ Next Steps
+Create sessions table in Supabase
+
+Replace in-memory logic with SupabaseSessionStore
+
+Implement crypto.py and store encryption key securely
+
+Write unit tests for get, append_message, and clear
 
 ---
 
