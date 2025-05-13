@@ -13,7 +13,7 @@ from backend.app.utils.crypto import encrypt_message, decrypt_message # Used by 
 from cryptography.fernet import InvalidToken
 
 # Define a test Fernet key - ensure this matches what crypto.py would expect if FERNET_KEY is set
-TEST_FERNET_KEY = "otidx7vfPODF90dY-EHoWyltiqN1y94YfdPamPrRu_0="
+TEST_FERNET_KEY = ""
 TEST_SUPABASE_URL = "http://test.supabase.co"
 TEST_SUPABASE_API_KEY = "test_supabase_api_key"
 

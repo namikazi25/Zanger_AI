@@ -19,13 +19,15 @@ ZangerAI/
 
 ## Backend
 
-The backend is a FastAPI application exposing a `/chat` endpoint for session-based AI conversations.
+The backend is a FastAPI application exposing a `/chat` endpoint for session-based AI conversations, now featuring secure, encrypted session and state management using Supabase as the backing store.
 
 ### Features
 
 - LangChain-driven agent for chat
-- Session management per conversation
+- Supabase-backed session and state management
+- End-to-end encryption of session data using Fernet (cryptography)
 - FastAPI + Uvicorn for high-performance serving
+- Secure environment variable management with python-dotenv
 
 ### Dependencies
 
@@ -35,11 +37,30 @@ The backend is a FastAPI application exposing a `/chat` endpoint for session-bas
 - LangChain
 - OpenAI Python SDK
 - Pydantic
+- supabase-py
+- cryptography
+- python-dotenv
 
 ### Prerequisites
 
 - Access to the internal Git repository
-- Environment variables configured in `backend/.env`
+- Environment variables configured in `backend/.env` (see below)
+- Supabase project set up with a `sessions` table (see architecture plan for schema)
+
+### Environment Variables
+
+Add the following to your `backend/.env`:
+```env
+OPENAI_API_KEY=your_key_here
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_API_KEY=your-service-role-key
+FERNET_KEY=your-generated-key
+```
+- Generate a Fernet key with:
+  ```bash
+  python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+  ```
+- Never commit secrets to version control.
 
 ### Setup Instructions
 
@@ -59,11 +80,9 @@ The backend is a FastAPI application exposing a `/chat` endpoint for session-bas
    cd backend
    pip install -r requirements.txt
    ```
-5. **Configure environment**: Populate `backend/.env` with your OpenAI key and any other secrets.
-   ```env
-   OPENAI_API_KEY=your_key_here
-   ```
-6. **Run the server**:
+5. **Configure environment**: Populate `backend/.env` as described above.
+6. **Set up Supabase**: Ensure your Supabase project has a `sessions` table matching the backend's requirements. See `BACKEND_ARCHITECTURE_PLAN.md` for schema and setup tips.
+7. **Run the server**:
    ```bash
    cd backend
    uvicorn app.main:app --reload
