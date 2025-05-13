@@ -1,22 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { File, Edit, Eye, Plus, Search } from "lucide-react";
-import React from "react";
-
-// Template types
-type Template = {
-  id: string;
-  title: string;
-  status: "active" | "draft" | "archived";
-  description: string;
-};
-
-type TemplateCategory = {
-  id: string;
-  name: string;
-  templates: Template[];
-};
+import { File, Edit, Eye, Plus, Search, X } from "lucide-react";
+import EditTemplateModal from "../components/EditTemplateModal";
+import type { Template, TemplateCategory } from "../types";
 
 // Sample data
 const initialCategories: TemplateCategory[] = [
@@ -94,11 +81,15 @@ const initialCategories: TemplateCategory[] = [
 ];
 
 const TemplatesGenerator = () => {
-  const [categories] = useState<TemplateCategory[]>(initialCategories); // Let's move this to a service
+  const [categories, setCategories] =
+    useState<TemplateCategory[]>(initialCategories);
   const [selectedCategory, setSelectedCategory] = useState<string>(
     categories[0].id
   );
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Get the selected category
   const currentCategory =
@@ -110,6 +101,38 @@ const TemplatesGenerator = () => {
       template.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       template.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Handle opening the edit modal
+  const handleEditClick = (template: Template) => {
+    setEditingTemplate(template);
+    setIsEditModalOpen(true);
+  };
+
+  // Handle saving template changes
+  const handleSaveTemplate = (updatedTemplate: Template) => {
+    // Update the template in the categories state
+    const updatedCategories = categories.map((category) => {
+      if (category.id === selectedCategory) {
+        return {
+          ...category,
+          templates: category.templates.map((template) =>
+            template.id === updatedTemplate.id ? updatedTemplate : template
+          ),
+        };
+      }
+      return category;
+    });
+
+    setCategories(updatedCategories);
+    setSuccessMessage(
+      `Template "${updatedTemplate.title}" updated successfully`
+    );
+
+    // Clear success message after 3 seconds
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 3000);
+  };
 
   return (
     <div className="flex flex-col h-screen">
@@ -221,6 +244,19 @@ const TemplatesGenerator = () => {
               </div>
             </div>
 
+            {/* Success Message */}
+            {successMessage && (
+              <div className="mb-6 p-3 bg-green-50 text-green-700 rounded-lg flex justify-between items-center">
+                <span>{successMessage}</span>
+                <button
+                  onClick={() => setSuccessMessage(null)}
+                  className="text-green-700 hover:text-green-900"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+
             {/* Templates Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {filteredTemplates.map((template) => (
@@ -252,7 +288,10 @@ const TemplatesGenerator = () => {
                     </p>
 
                     <div className="flex justify-end gap-3">
-                      <button className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-sm px-3 py-1 rounded hover:bg-gray-100 transition-colors">
+                      <button
+                        className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-sm px-3 py-1 rounded hover:bg-gray-100 transition-colors"
+                        onClick={() => handleEditClick(template)}
+                      >
                         <Edit size={16} />
                         <span>Edit</span>
                       </button>
@@ -289,6 +328,17 @@ const TemplatesGenerator = () => {
           </div>
         </div>
       </div>
+
+      {/* Edit Template Modal */}
+      <EditTemplateModal
+        isOpen={isEditModalOpen}
+        template={editingTemplate}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingTemplate(null);
+        }}
+        onSave={handleSaveTemplate}
+      />
     </div>
   );
 };
