@@ -36,13 +36,13 @@
 - [ ] Session & State Management:
   - [x] Implement supabase memory store (`storage/session_store.py`)
   - [ ] Prepare interface for Postgres
-- [ ] FastAPI Integration:
-  - [ ] Add `/chat` route
-  - [ ] Add middleware (logging, error handling, CORS, rate-limit stubs)
-- [ ] Testing & CI:
-  - [ ] Unit tests for Planner, Router, Tools
-  - [ ] Integration tests for `/chat`
-  - [ ] CI pipeline (lint, type-check, pytest)
+- [x] FastAPI Integration:
+  - [x] Add `/chat` route
+  - [x] Add middleware (logging, error handling, CORS, rate-limit stubs)
+- [x] Testing & CI:
+  - [x] Unit tests for Planner, Router, Tools
+  - [x] Integration tests for `/chat`
+  - [x] CI pipeline (lint, type-check, pytest)
 
 This document outlines the step-by-step plan for evolving the backend of our AI-based Legal Chatbot. The focus is on modularity, extensibility, and robust orchestration, with a clear path for future enhancements.
 

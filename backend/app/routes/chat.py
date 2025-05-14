@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, UploadFile
 from pydantic import BaseModel
 from typing import List, Optional
-from app.agents.my_agent import run_agent
+from ..agents.my_agent import run_agent
 
 router = APIRouter()
 
