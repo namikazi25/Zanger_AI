@@ -22,7 +22,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState<"chat" | "templates">("chat");
 
   // Handle sending a new message
-  const handleSendMessage = (text: string) => {
+  const handleSendMessage = async (text: string) => {
     // Add user message
     const newMessage: Message = {
       id: Date.now(),
@@ -31,18 +31,51 @@ function App() {
       timestamp: new Date(),
     };
 
-    setMessages([...messages, newMessage]);
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
 
-    // Simulate assistant response (in a real app, this would be an API call)
-    setTimeout(() => {
+    // API call to the backend
+    try {
+      const response = await fetch("/api/chat", { // Assuming /api prefix is handled by vite proxy or similar
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: text,
+          session_id: "user_session_001", // Replace with actual session management later
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Error from backend:", response.status, await response.text());
+        const assistantMessage: Message = {
+          id: Date.now() + 1,
+          text: "Sorry, I encountered an error. Please try again.",
+          sender: "assistant",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+        return;
+      }
+
+      const data = await response.json();
       const assistantMessage: Message = {
         id: Date.now() + 1,
-        text: "I'll help you with that. Please provide more details about your case.",
+        text: data.response.response, // Access the nested response string
         sender: "assistant",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
-    }, 1000);
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      const assistantMessage: Message = {
+        id: Date.now() + 1,
+        text: "Sorry, I couldn't connect to the server. Please check your connection.",
+        sender: "assistant",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
+    }
   };
 
   return (

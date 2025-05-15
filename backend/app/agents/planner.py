@@ -7,7 +7,7 @@ class Planner:
         # MVP: Always plan to search, then generate
         plan = [
             {"step": "search", "query": query},
-            {"step": "generate", "input": "search_context + user_query"}
+            {"step": "generate", "input": query}
         ]
         # TODO: Modify the plan to incorporate processed_file_contents if available.
         # For example, if files are present, the plan might include a step to summarize them

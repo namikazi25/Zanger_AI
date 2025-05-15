@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+import httpx
+import os
 
 class BaseModelWrapper(ABC):
     @abstractmethod
@@ -7,19 +9,25 @@ class BaseModelWrapper(ABC):
 
 class GeminiFlash(BaseModelWrapper):
     def __init__(self, api_key: str = None):
-        # In a real scenario, you would initialize the Gemini client here
-        # For now, we'll just store the API key if provided
-        self.api_key = api_key
-        # print(f"GeminiFlash initialized. API key {'present' if api_key else 'not provided'}.") # Optional: for debugging
+        self.api_key = api_key or os.getenv("GEMINI_API_KEY")
+        self.api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+        if not self.api_key:
+            raise ValueError("GEMINI_API_KEY is required for GeminiFlash.")
 
     async def generate(self, prompt: str, **kwargs) -> str:
-        # This is a stub implementation.
-        # In a real scenario, this would call the Gemini API.
-        # print(f"GeminiFlash generating response for prompt: {prompt[:50]}...") # Optional: for debugging
-        # Simulate an API call
-        # import asyncio
-        # await asyncio.sleep(0.1) # If doing actual async I/O
-        return f"Response from GeminiFlash for: {prompt}"
+        headers = {"Content-Type": "application/json"}
+        params = {"key": self.api_key}
+        data = {
+            "contents": [{"parts": [{"text": prompt}]}]
+        }
+        async with httpx.AsyncClient() as client:
+            response = await client.post(self.api_url, headers=headers, params=params, json=data, timeout=30)
+            response.raise_for_status()
+            result = response.json()
+            try:
+                return result["candidates"][0]["content"]["parts"][0]["text"]
+            except Exception:
+                return str(result)
 
 # Example usage (optional, for local testing purposes)
 # async def main():
