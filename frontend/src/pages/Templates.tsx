@@ -80,7 +80,11 @@ const initialCategories: TemplateCategory[] = [
   },
 ];
 
-const TemplatesGenerator = () => {
+const TemplatesGenerator = ({
+  currentPage,
+}: {
+  currentPage: (param: "chat" | "templates") => void;
+}) => {
   const [categories, setCategories] =
     useState<TemplateCategory[]>(initialCategories);
   const [selectedCategory, setSelectedCategory] = useState<string>(
@@ -153,8 +157,12 @@ const TemplatesGenerator = () => {
           </div>
 
           <nav className="hidden md:flex items-center space-x-6">
-            <a href="#" className="text-gray-500 hover:text-gray-900">
-              Home
+            <a
+              href="#"
+              onClick={() => currentPage("chat")}
+              className="text-gray-500 hover:text-gray-900 bold"
+            >
+              Chat
             </a>
             <a href="#" className="text-gray-500 hover:text-gray-900">
               My Notes

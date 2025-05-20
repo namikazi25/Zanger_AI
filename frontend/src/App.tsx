@@ -48,7 +48,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       {currentPage === "chat" ? (
-        <div className="max-w-3xl mx-auto border rounded-lg shadow-sm my-8 bg-white">
+        <div className="mx-2 my-2 border rounded-lg shadow-sm my-8 bg-white">
           {/* Header with navigation */}
           <div className="flex justify-between items-center p-4 border-b">
             <div className="flex items-center gap-2">
@@ -95,7 +95,7 @@ function App() {
           <MessageInput onSendMessage={handleSendMessage} />
         </div>
       ) : (
-        <Templates />
+        <Templates currentPage={setCurrentPage} />
       )}
     </div>
   );
