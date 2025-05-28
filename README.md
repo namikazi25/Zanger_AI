@@ -85,13 +85,13 @@ The frontend is implemented in React + TypeScript with Vite and TailwindCSS. It 
 1. **Install dependencies**:
    ```bash
    cd frontend
-   npm install
+   yarn
    ```
 2. **Start the development server**:
    ```bash
-   npm run dev
+   yarn dev
    ```
-3. **Open** `http://localhost:5173` in your browser.
+3. **Open** `http://localhost:3000` in your browser.
 
 ## Development Notes
 
